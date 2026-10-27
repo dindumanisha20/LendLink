@@ -1,0 +1,514 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LendLink | Campus Item Sharing</title>
+<style>
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f7f8fc;
+    color: #20233a;
+}
+header {
+    background: linear-gradient(120deg, #5636d9, #8b5cf6);
+    color: white;
+    padding: 22px 7%;
+}
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+.logo { font-size: 27px; font-weight: bold; }
+nav a { color: white; text-decoration: none; margin-left: 18px; }
+.hero {
+    padding: 55px 7% 45px;
+    background: linear-gradient(120deg, #eee9ff, #e4f7ff);
+}
+.hero h1 { font-size: clamp(32px, 5vw, 52px); margin: 0 0 15px; }
+.hero p { font-size: 18px; color: #5e6178; }
+.search {
+    display: flex;
+    gap: 10px;
+    margin-top: 25px;
+    max-width: 650px;
+}
+input, select, textarea {
+    padding: 13px;
+    border: 1px solid #d9dbea;
+    border-radius: 10px;
+    font: inherit;
+    min-width: 0;
+}
+.search input { flex: 1; background: white; }
+button {
+    background: #6543e9;
+    color: white;
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-weight: bold;
+    cursor: pointer;
+}
+button:hover { background: #4e2dc5; }
+main { padding: 35px 7%; }
+.categories { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0 28px; }
+.categories button { background: white; color: #5141a5; border: 1px solid #ddd7fa; }
+.categories button.active { background: #6543e9; color: white; }
+.items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 22px;
+}
+.card {
+    background: white;
+    border-radius: 17px;
+    overflow: hidden;
+    box-shadow: 0 5px 22px #29244b0d;
+    border: 1px solid #eeedf5;
+}
+.item-picture {
+    height: 145px;
+    display: grid;
+    place-items: center;
+    font-size: 65px;
+}
+.card-content { padding: 18px; }
+.tag {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 20px;
+    background: #eee9ff;
+    color: #6543e9;
+    font-size: 12px;
+}
+.card h3 { margin: 13px 0 8px; }
+.card p { color: #70738a; font-size: 14px; }
+.price { font-size: 20px; font-weight: bold; color: #5636d9; }
+.card button { width: 100%; margin-top: 12px; }
+section { margin-bottom: 42px; }
+.form-panel {
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    max-width: 600px;
+    border: 1px solid #eeedf5;
+}
+.form-panel input, .form-panel select, .form-panel textarea {
+    display: block;
+    width: 100%;
+    margin: 12px 0;
+}
+footer {
+    text-align: center;
+    padding: 25px;
+    background: #24203c;
+    color: white;
+}
+@media (max-width: 500px) {
+    .search { flex-direction: column; }
+    nav a { margin-left: 8px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <nav>
+        <div class="logo">🔗 LendLink</div>
+        <div>
+            <a href="#items">Explore</a>
+            <a href="#list">List an item</a>
+        </div>
+    </nav>
+</header>
+
+<div class="hero">
+    <h1>Borrow more. Spend less. 💜</h1>
+    <p>Your campus community for sharing useful things.</p>
+    <p>Find books, calculators, lab tools and more from fellow students.</p>
+    <div class="search">
+        <input id="searchInput" placeholder="Search books, calculators, laptops...">
+        <button onclick="renderItems()">Search items</button>
+    </div>
+</div>
+
+<main>
+<section id="items">
+    <h2>Explore campus items ✨</h2>
+    <p>Useful things, shared by your campus community.</p>
+
+    <div class="categories">
+        <button class="active" onclick="setCategory('All', this)">All items</button>
+        <button onclick="setCategory('Books', this)">📚 Books</button>
+        <button onclick="setCategory('Electronics', this)">💻 Electronics</button>
+        <button onclick="setCategory('Lab', this)">🧪 Lab equipment</button>
+        <button onclick="setCategory('Other', this)">🎒 Other</button>
+    </div>
+
+    <div class="items" id="itemGrid"></div>
+    <p id="emptyMessage" hidden>No matching items. Try another search!</p>
+</section>
+
+<section id="list">
+    <h2>Share something with your campus 💜</h2>
+    <p>Have an item other students could borrow? Add it below.</p>
+    <div class="form-panel">
+        <form id="itemForm">
+            <input id="itemName" placeholder="Item name" required>
+            <select id="itemCategory" required>
+                <option value="">Choose category</option>
+                <option>Books</option>
+                <option>Electronics</option>
+                <option>Lab</option>
+                <option>Other</option>
+            </select>
+            <input id="itemPrice" type="number" min="0" placeholder="Rental price in ₹ (0 for free)" required>
+            <input id="itemOwner" placeholder="Your name" required>
+            <textarea id="itemDescription" placeholder="Short description" rows="3" required></textarea>
+            <button type="submit">+ Add my item</button>
+        </form>
+        <p id="formMessage" role="status"></p>
+    </div>
+</section>
+</main>
+
+<footer>
+    <strong>LendLink</strong> — Share more. Spend less. 💜
+    <p>Made for a more connected campus community.</p>
+</footer>
+
+
+<script>
+const demoItems = [
+    {
+        name: "Java Programming Book",
+        category: "Books",
+        price: 20,
+        owner: "Student A",
+        description: "Helpful for learning Java basics.",
+        emoji: "📚",
+        color: "#eee8ff"
+    },
+    {
+        name: "Scientific Calculator",
+        category: "Electronics",
+        price: 15,
+        owner: "Student B",
+        description: "Useful for exams and lab work.",
+        emoji: "🧮",
+        color: "#dff8ef"
+    },
+    {
+        name: "Laptop for Projects",
+        category: "Electronics",
+        price: 150,
+        owner: "Student C",
+        description: "For coding and college projects.",
+        emoji: "💻",
+        color: "#e0efff"
+    },
+    {
+        name: "Physics Lab Kit",
+        category: "Lab",
+        price: 30,
+        owner: "Student D",
+        description: "Basic equipment for lab practice.",
+        emoji: "🧪",
+        color: "#fff0d9"
+    },
+    {
+        name: "Engineering Notes",
+        category: "Books",
+        price: 10,
+        owner: "Student E",
+        description: "Revision notes for students.",
+        emoji: "📝",
+        color: "#ffe6ef"
+    },
+    {
+        name: "College Backpack",
+        category: "Other",
+        price: 0,
+        owner: "Student F",
+        description: "Available to borrow for free.",
+        emoji: "🎒",
+        color: "#e1f7fc"
+    }
+];
+
+let items = [];
+let selectedCategory = "All";
+
+const emojiMap = {
+    Books: "📚",
+    Electronics: "💻",
+    Lab: "🧪",
+    Other: "🎒"
+};
+
+const colorMap = {
+    Books: "#eee8ff",
+    Electronics: "#e0efff",
+    Lab: "#fff0d9",
+    Other: "#e1f7fc"
+};
+
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, character => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[character]);
+}
+
+// Load saved items from Node.js
+async function loadItems() {
+    const message = document.getElementById("formMessage");
+
+    try {
+        const response = await fetch("/api/items");
+
+        if (!response.ok) {
+            throw new Error("Could not load saved items.");
+        }
+
+        const savedItems = await response.json();
+
+        items = [
+            ...savedItems.map(item => ({
+                ...item,
+                emoji: item.emoji || emojiMap[item.category] || "📦",
+                color: item.color || colorMap[item.category] || "#eee8ff"
+            })),
+            ...demoItems
+        ];
+
+        renderItems();
+    } catch (error) {
+        console.error(error);
+        items = [...demoItems];
+        renderItems();
+
+        message.textContent =
+            "Could not connect to the server. Please check that Node.js is running.";
+    }
+}
+
+// Display cards, search results and category filters
+function renderItems() {
+    const query = document
+        .getElementById("searchInput")
+        .value.trim()
+        .toLowerCase();
+
+    const filtered = items.filter(item =>
+        (selectedCategory === "All" ||
+            item.category === selectedCategory) &&
+        (
+            item.name + " " +
+            item.description + " " +
+            item.category + " " +
+            item.owner
+        ).toLowerCase().includes(query)
+    );
+
+    document.getElementById("itemGrid").innerHTML =
+        filtered.map(item => `
+            <article class="card">
+                <div class="item-picture"
+                     style="background:${escapeHTML(item.color)}">
+                    ${escapeHTML(item.emoji)}
+                </div>
+
+                <div class="card-content">
+                    <span class="tag">
+                        ${escapeHTML(item.category)}
+                    </span>
+
+                    <h3>${escapeHTML(item.name)}</h3>
+                    <p>${escapeHTML(item.description)}</p>
+                    <p>Shared by ${escapeHTML(item.owner)}</p>
+
+                    <div class="price">
+                        ${Number(item.price) === 0
+                            ? "Free"
+                            : "₹" + Number(item.price) + " / day"}
+                    </div>
+
+                    <button type="button" onclick="requestItem(${items.indexOf(item)})">I'm interested</button>
+
+${item.id ? `
+    <button type="button" onclick="deleteItem(${Number(item.id)})">
+        Delete Item
+    </button>
+` : ""}
+                </div>
+            </article>
+        `).join("");
+
+    document.getElementById("emptyMessage").hidden =
+        filtered.length !== 0;
+}
+
+function setCategory(category, button) {
+    selectedCategory = category;
+
+    document.querySelectorAll(".categories button")
+        .forEach(b => b.classList.remove("active"));
+
+    button.classList.add("active");
+    renderItems();
+}
+
+function requestItem(index) {
+    const item = items[index];
+
+    if (!item) return;
+
+    alert(
+        "You selected: " + item.name +
+        "\nShared by: " + item.owner +
+        "\n\nDemo only: messaging and borrowing requests are not connected yet."
+    );
+}
+
+async function deleteItem(id) {
+    const item = items.find(item => Number(item.id) === Number(id));
+
+    if (!item) return;
+
+    const confirmed = confirm(
+        "Are you sure you want to delete " + item.name + "?"
+    );
+
+    if (!confirmed) return;
+
+    try {
+        const response = await fetch("/api/items/" + id, {
+            method: "DELETE"
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "Could not delete item.");
+        }
+
+        items = items.filter(
+            item => Number(item.id) !== Number(id)
+        );
+
+        renderItems();
+
+        document.getElementById("formMessage").textContent =
+            "Item deleted successfully!";
+    } catch (error) {
+        console.error(error);
+        document.getElementById("formMessage").textContent =
+            "Could not delete the item. Please try again.";
+    }
+}
+
+
+// Save a new item permanently in items.json
+document.getElementById("itemForm")
+    .addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        const message = document.getElementById("formMessage");
+        const submitButton = this.querySelector('button[type="submit"]');
+
+        const category =
+            document.getElementById("itemCategory").value;
+
+        const newItem = {
+            name: document.getElementById("itemName").value.trim(),
+            category: category,
+            price: Number(document.getElementById("itemPrice").value),
+            owner: document.getElementById("itemOwner").value.trim(),
+            description:
+                document.getElementById("itemDescription").value.trim(),
+            emoji: emojiMap[category] || "📦",
+            color: colorMap[category] || "#eee8ff"
+        };
+
+        if (
+            !newItem.name ||
+            !newItem.owner ||
+            !newItem.description ||
+            !category ||
+            !Number.isFinite(newItem.price) ||
+            newItem.price < 0
+        ) {
+            message.textContent = "Please enter valid item details.";
+            return;
+        }
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Saving...";
+
+        try {
+            const response = await fetch("/api/items", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(newItem)
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.error || "Could not save item.");
+            }
+
+            // Use the item confirmed by the server
+            items.unshift({
+                ...result.item,
+                emoji: result.item.emoji || emojiMap[category] || "📦",
+                color: result.item.color || colorMap[category] || "#eee8ff"
+            });
+
+            this.reset();
+
+            selectedCategory = "All";
+
+            document.querySelectorAll(".categories button")
+                .forEach(b => b.classList.remove("active"));
+
+            document.querySelector(".categories button")
+                .classList.add("active");
+
+            renderItems();
+
+            message.textContent =
+                "Success! Your item has been saved and will remain after refreshing.";
+
+            document.getElementById("items")
+                .scrollIntoView({ behavior: "smooth" });
+
+        } catch (error) {
+            console.error(error);
+            message.textContent =
+                "Could not save your item. Check that the server is running and try again.";
+        } finally {
+            submitButton.disabled = false;
+            submitButton.textContent = "+ Add my item";
+        }
+    });
+
+document.getElementById("searchInput")
+    .addEventListener("input", renderItems);
+
+// Load saved items when the page opens
+loadItems();
+</script>

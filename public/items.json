@@ -1,0 +1,19 @@
+
+[
+  {
+    "id": 1,
+    "name": "Engineering Mathematics Book",
+    "category": "Books",
+    "description": "Useful for first-year engineering students",
+    "owner": "Student",
+    "available": true
+  },
+  {
+    "id": 2,
+    "name": "Scientific Calculator",
+    "category": "Electronics",
+    "description": "Scientific calculator for exams and lab work",
+    "owner": "Student",
+    "available": true
+  }
+]
